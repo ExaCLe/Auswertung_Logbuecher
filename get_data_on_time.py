@@ -158,7 +158,7 @@ class Application(tk.Frame):
             cameras.append(view)
         cameras = pd.Series(cameras)
         self.df["Camera"] = cameras
-        self.df.to_csv("ouput.csv")
+        self.df.to_csv("ouput.csv", sep=";")
 
     def analyseTimeFrame(self):
         left_time = self.time_input_left.get()
