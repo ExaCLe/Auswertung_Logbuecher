@@ -1,0 +1,13 @@
+1. Alle Dateien in ein Verzeichnis legen 
+2. Python installieren (hast du wahrscheinlich schon) 
+	- zum Testen: 
+		- Im Terminal: 	python --version
+					pip --version
+	(Du brauchst beides) 
+3. Benötige Libraries installieren: 
+	- Im Terminal (im Ordner der Dateien): 
+			pip install -r requirements.txt
+
+4. Datei ausführen: 
+	- Im Terminal: 
+			python3 get_data_on_time.py
