@@ -51,10 +51,7 @@ class Application(tk.Frame):
         self.time_input.pack(padx=20, side="left")
 
         # Button to start the analysis
-        btn_analyse = tk.Button(frame2)
-        btn_analyse["text"] = "Zeitpunkt Analysieren"
-        btn_analyse["command"] = self.analyseArea
-        btn_analyse.pack(padx=20, side="left")
+        self.createButton(frame2, "Zeitpunkt analysieren", self.analyseArea)
 
         # Show the range of input times
         self.time_label = tk.Label(frame2)
@@ -81,10 +78,7 @@ class Application(tk.Frame):
             font=("Arial", 20),
         )
         label_instruction3.pack(side="left")
-        self.btn_analyse_automatic = tk.Button(frame4)
-        self.btn_analyse_automatic["text"] = "Automatische Analyse"
-        self.btn_analyse_automatic["command"] = self.createAutomaticReport
-        self.btn_analyse_automatic.pack(padx=20, side="left")
+        self.createButton(frame4, "Automatische Analyse", self.createAutomaticReport)
 
         # Wahl eines eigenen Abschnittes
         frame5 = tk.Frame(self)
@@ -99,10 +93,7 @@ class Application(tk.Frame):
         self.time_input_left.pack(padx=20, side="left")
         self.time_input_right = tk.Entry(frame5)
         self.time_input_right.pack(padx=20, side="left")
-        self.btn_analyse_time_frame = tk.Button(frame5)
-        self.btn_analyse_time_frame["text"] = "Abschnittsanalyse"
-        self.btn_analyse_time_frame["command"] = self.analyseTimeFrame
-        self.btn_analyse_time_frame.pack(padx=20, side="left")
+        self.createButton(frame5, "Abschnittsanalyse", self.analyseTimeFrame)
 
         # Button to end the program
         quit = tk.Button(self, text="QUIT", fg="red", command=self.master.destroy)
@@ -124,10 +115,11 @@ class Application(tk.Frame):
         createAutomaticReport(self)
 
     def createButton(self, frame, text, onClick):
-        file_button = tk.Button(frame)
-        file_button["text"] = text
-        file_button["command"] = onClick
-        file_button.pack(padx=20, pady=20, side=LEFT)
+        button = tk.Button(frame)
+        button["text"] = text
+        button["command"] = onClick
+        button.pack(padx=20, pady=20, side=LEFT)
+        return button
 
 
 def main():
