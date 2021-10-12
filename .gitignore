@@ -1,0 +1,5 @@
+*.csv
+*.jpg
+.DS_Store
+gui/
+gui_test.py
