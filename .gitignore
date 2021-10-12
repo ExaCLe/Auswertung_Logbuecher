@@ -3,3 +3,4 @@
 .DS_Store
 gui/
 gui_test.py
+*.pyc
