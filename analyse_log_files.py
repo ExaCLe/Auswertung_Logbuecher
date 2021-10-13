@@ -5,7 +5,7 @@ import webbrowser
 import matplotlib.pyplot as plt
 import numpy as np
 
-from create_report import createHTMLReportFile
+from create_report import createHTMLReportFile, to_time_format
 
 THRESHOLD_FOR_ACCIDENT_SWITCH = 10  # seconds
 
@@ -104,7 +104,7 @@ def analyseDrive(df, time, foldername, index=1):
     - View Speed Graph (The relative path to the view-speed-graph)
     - Time In Camera (a list with the times in each camera (reference by index))
     - Camera Switches (a 2d-list with the switch from 1-2 being at [0][1])
-    - Accidential Switches (a list of accidential switches (each is a dict with "From", "To", "Duration", "At", "Speed"))
+    - Accidential Switches (a list of accidential switches (each is a dict with "Von Kamera", "Zu Kamera", "Dauer", "Zeitpunkt", "Geschwindigkeit"))
     - Error Freq (a list with the errors and the number of occurences (tuple with [0] = error and [1] = freq))
     - Errors File (the path to the error file )
     - Drive Log (the path to the log of the file with the drive df)
@@ -135,12 +135,17 @@ def analyseDrive(df, time, foldername, index=1):
     filename_view_speed_graph = draw_view_speed_graph(filtered_df, folder)
 
     # Figure out the time spend in each Camera
-    cameras, switches, accidential_switches, file_switches = detect_time_spend_in_cam(
-        filtered_df, folder
-    )
+    (
+        cameras,
+        switches,
+        accidential_switches,
+        file_switches,
+        file_accidential_switches,
+        file_time_in_camera,
+    ) = detect_time_spend_in_cam(filtered_df, folder)
 
     # Get all the error messages by frequency
-    errors = filter_errors_by_freq(filtered_df, folder)
+    errors, errors_freq_file = filter_errors_by_freq(filtered_df, folder)
 
     # Create the .csv file from the drive
     drive_export_filename = os.path.join(
@@ -158,10 +163,13 @@ def analyseDrive(df, time, foldername, index=1):
         "Folder": folder,
         "View Speed Graph": os.path.join(subfolder, filename_view_speed_graph),
         "Time In Camera": cameras,
+        "File Time In Camera": file_time_in_camera,
         "Camera Switches": switches,
         "Camera Switches File": file_switches,
         "Accidential Switches": accidential_switches,
+        "Accidential Switches File": file_accidential_switches,
         "Errors Freq": errors,
+        "Errors Freq File": errors_freq_file,
         "Errors File": os.path.join(folder, "Fehleruebersicht" + ".csv"),
         "Drive Log": os.path.join(
             folder, "Logbuch des Berichts " + str(index) + ".csv"
@@ -281,11 +289,11 @@ def detect_time_spend_in_cam(df, folder):
             ):
                 accidential_switches.append(
                     {
-                        "From": camera + 1,
-                        "To": cam + 1,
-                        "At": timestamp,
-                        "Duration": time_passed,
-                        "Speed": df.iloc[i]["Geschwindigkeit [km/h]"],
+                        "Von Kamera": camera + 1,
+                        "Zu Kamera": cam + 1,
+                        "Zeitpunkt": timestamp,
+                        "Dauer": time_passed,
+                        "Geschwindigkeit": df.iloc[i]["Geschwindigkeit [km/h]"],
                     }
                 )
             start = timestamp
@@ -304,11 +312,32 @@ def detect_time_spend_in_cam(df, folder):
             "Von 3 zu 1": switches[2][0],
             "Von 3 zu 2": switches[2][1],
         },
-        index=[0],
+        index=[1],
     )
     file_switches = os.path.join(folder, "Kamerawechsel.csv")
     switches_df.to_csv(file_switches, sep=";")
-    return cameras, switches, accidential_switches, file_switches
+    accidential_switches_df = pd.DataFrame(accidential_switches)
+    file_accidential_switches = os.path.join(folder, "Versehentliche Kamerawechsel.csv")
+    accidential_switches_df.to_csv(file_accidential_switches, sep=";")
+    camera_df = pd.DataFrame(
+        {
+            "Gesamt": to_time_format(np.array(cameras).sum()),
+            "Kamera 1": to_time_format(cameras[0]),
+            "Kamera 2": to_time_format(cameras[1]),
+            "Kamera 3": to_time_format(cameras[2]),
+        },
+        index=[1],
+    )
+    file_time_in_camera = os.path.join(folder, "Verbrachte Zeiten in den Kameras.csv")
+    camera_df.to_csv(file_time_in_camera, sep=";")
+    return (
+        cameras,
+        switches,
+        accidential_switches,
+        file_switches,
+        file_accidential_switches,
+        file_time_in_camera,
+    )
 
 
 def filter_errors_by_freq(df, folder):
@@ -323,6 +352,9 @@ def filter_errors_by_freq(df, folder):
         errors[row.name] = row["Eintragstyp"]
     errors = sorted(errors.items(), key=lambda x: x[1], reverse=True)
     errors_file = os.path.join(folder, "Fehleruebersicht" + ".csv")
+    errors_freq_file = os.path.join(folder, "Fehler nach Häufigkeit.csv")
     if len(filtered_df_errors) > 0:
         filtered_df_errors.to_csv(errors_file, sep=";")
-    return errors
+        errors_freq_df = pd.DataFrame(errors, columns=["Fehlermeldung", "Häufigkeit"])
+        errors_freq_df.to_csv(errors_freq_file, sep=";")
+    return errors, errors_freq_file

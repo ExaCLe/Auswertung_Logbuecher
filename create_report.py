@@ -87,6 +87,11 @@ def createHTMLReportFile(reports, filename):
                 + to_time_format(times[2])
                 + "</td></tr></table>"
             )
+            file.write(
+                "<a href='file://"
+                + os.path.realpath(result["File Time In Camera"])
+                + "'><button>Tabelle als Datei</button></a>"
+            )
 
             file.write("<h3>Kamerawechsel: </h3>")
             switches = result["Camera Switches"]
@@ -126,18 +131,23 @@ def createHTMLReportFile(reports, filename):
                 for ele in accidential_switches:
                     file.write(
                         "<tr><td>"
-                        + str(ele["From"])
+                        + str(ele["Von Kamera"])
                         + "</td><td>"
-                        + str(ele["To"])
+                        + str(ele["Zu Kamera"])
                         + "</td><td>"
-                        + str(ele["At"])
+                        + str(ele["Zeitpunkt"])
                         + "</td><td>"
-                        + str(ele["Duration"])
+                        + str(ele["Dauer"])
                         + "</td><td>"
-                        + str(ele["Speed"])
+                        + str(ele["Geschwindigkeit"])
                         + "</td></tr>"
                     )
-            file.write("</table>")
+                file.write("</table>")
+                file.write(
+                    "<a href='file://"
+                    + os.path.realpath(result["Accidential Switches File"])
+                    + "'><button>Tabelle als Datei</button></a>"
+                )
 
             file.write(
                 "<img src='" + result["View Speed Graph"] + "' style='width:100%;''/>"
@@ -157,6 +167,11 @@ def createHTMLReportFile(reports, filename):
                         + "</td></tr>"
                     )
                 file.write("</table>")
+                file.write(
+                    "<a href='file://"
+                    + os.path.realpath(result["Errors Freq File"])
+                    + "'><button>Tabelle als Datei</button></a>"
+                )
                 file.write(
                     "<a href='file://"
                     + os.path.realpath(result["Errors File"])
