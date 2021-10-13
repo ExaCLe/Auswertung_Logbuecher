@@ -263,7 +263,9 @@ def detect_time_spend_in_cam(df):
         timestamp = df.iloc[i]["Zeitstempel"]
         if cam != camera:
             time_passed = (timestamp - start).seconds
-            if time_passed < THRESHOLD_FOR_ACCIDENT_SWITCH:
+            if time_passed < THRESHOLD_FOR_ACCIDENT_SWITCH and (
+                cam == 2 or camera == 2
+            ):
                 accidential_switches.append(
                     {
                         "From": camera + 1,
@@ -295,3 +297,4 @@ def filter_errors_by_freq(df, folder):
     errors_file = os.path.join(folder, "Fehleruebersicht" + ".csv")
     if len(filtered_df_errors) > 0:
         filtered_df_errors.to_csv(errors_file, sep=";")
+    return errors
