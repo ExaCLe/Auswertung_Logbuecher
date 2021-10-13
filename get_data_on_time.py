@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter.constants import LEFT
 from analyse_log_files import analyseArea
+import pandas as pd
 
 from init_csv_file import ask_for_file
 from analyse_log_files import (
@@ -9,17 +10,6 @@ from analyse_log_files import (
     analyseTimeFrame,
     createAutomaticReport,
 )
-
-
-def main():
-    root = tk.Tk()
-    root.geometry("1920x1080")
-    app = Application(master=root)
-    app.mainloop()
-
-
-if __name__ == "__main__":
-    main()
 
 
 class Application(tk.Frame):
@@ -95,7 +85,7 @@ class Application(tk.Frame):
         frame5.pack(side="top", fill=tk.X, padx=20)
         label_instruction4 = tk.Label(
             frame5,
-            text="4. Abschnittsanalyse (Von ... bis ...): ",
+            text="4. Abschnittsanalyse (Von ... bis ...) Format: DD.MM.YYYY HH:MM:SS: ",
             font=("Arial", 20),
         )
         label_instruction4.pack(side="left")
@@ -113,16 +103,23 @@ class Application(tk.Frame):
         ask_for_file(self)
 
     def analyseArea(self):
-        analyseArea(self)
-
-    def analyseDrive(self):
-        analyseDrive(self)
+        time_input = self.time_input.get()
+        gang, view, speed = analyseArea(self.df, time_input)
+        self.label_gang["text"] = "Gang: " + gang
+        self.label_view["text"] = "Kamera: " + str(view)
+        self.label_speed["text"] = "Geschwindigkeit: " + str(speed)
 
     def analyseTimeFrame(self):
-        analyseTimeFrame(self)
+        left_time = pd.to_datetime(
+            self.time_input_left.get(), format="%d.%m.%Y %H:%M:%S"
+        )
+        right_time = pd.to_datetime(
+            self.time_input_right.get(), format="%d.%m.%Y %H:%M:%S"
+        )
+        analyseTimeFrame(self.df, left_time, right_time)
 
     def createAutomaticReport(self):
-        createAutomaticReport(self)
+        createAutomaticReport(self.df)
 
     def createButton(self, frame, text, onClick):
         button = tk.Button(frame)
@@ -130,3 +127,14 @@ class Application(tk.Frame):
         button["command"] = onClick
         button.pack(padx=20, pady=20, side=LEFT)
         return button
+
+
+def main():
+    root = tk.Tk()
+    root.geometry("1920x1080")
+    app = Application(master=root)
+    app.mainloop()
+
+
+if __name__ == "__main__":
+    main()

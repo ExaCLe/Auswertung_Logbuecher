@@ -2,7 +2,7 @@ import numpy as np
 import os
 
 
-def createHTMLReportFile(self, reports, filename, foldername):
+def createHTMLReportFile(reports, filename):
 
     # Create a nice header
     writeHTMLHeader(filename)
