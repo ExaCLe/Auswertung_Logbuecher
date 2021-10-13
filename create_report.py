@@ -63,6 +63,11 @@ def createHTMLReportFile(reports, filename):
                         + "</td></tr>"
                     )
                 file.write("</table>")
+                file.write(
+                    "<a href='file://"
+                    + os.path.realpath(result["Unusual Things File"])
+                    + "'><button>Tabelle als Datei</button></a>"
+                )
 
             # The time in the cameras
             times = result["Time In Camera"]
@@ -81,6 +86,11 @@ def createHTMLReportFile(reports, filename):
                 + "</td><td>"
                 + to_time_format(times[2])
                 + "</td></tr></table>"
+            )
+            file.write(
+                "<a href='file://"
+                + os.path.realpath(result["File Time In Camera"])
+                + "'><button>Tabelle als Datei</button></a>"
             )
 
             file.write("<h3>Kamerawechsel: </h3>")
@@ -107,24 +117,37 @@ def createHTMLReportFile(reports, filename):
                 + "</td></tr></table>"
             )
 
+            file.write(
+                "<a href='file://"
+                + os.path.realpath(result["Camera Switches File"])
+                + "'><button>Tabelle als Datei</button></a>"
+            )
+
             accidential_switches = result["Accidential Switches"]
             if len(accidential_switches) != 0:
                 file.write(
-                    "<h3>Versehentliche Kamerawechsel:</h3><table><tr><th>Von Kamera</th><th>Zu Kamera</th><th>Wechsel bei</th><th>War aktiv für [s]</th><tr>"
+                    "<h3>Versehentliche Kamerawechsel:</h3><table><tr><th>Von Kamera</th><th>Zu Kamera</th><th>Wechsel bei</th><th>War aktiv für [s]</th><th>Geschwindigkeit</th><tr>"
                 )
                 for ele in accidential_switches:
                     file.write(
                         "<tr><td>"
-                        + str(ele["From"])
+                        + str(ele["Von Kamera"])
                         + "</td><td>"
-                        + str(ele["To"])
+                        + str(ele["Zu Kamera"])
                         + "</td><td>"
-                        + str(ele["At"])
+                        + str(ele["Zeitpunkt"])
                         + "</td><td>"
-                        + str(ele["Duration"])
+                        + str(ele["Dauer"])
+                        + "</td><td>"
+                        + str(ele["Geschwindigkeit"])
                         + "</td></tr>"
                     )
-            file.write("</table>")
+                file.write("</table>")
+                file.write(
+                    "<a href='file://"
+                    + os.path.realpath(result["Accidential Switches File"])
+                    + "'><button>Tabelle als Datei</button></a>"
+                )
 
             file.write(
                 "<img src='" + result["View Speed Graph"] + "' style='width:100%;''/>"
@@ -144,6 +167,11 @@ def createHTMLReportFile(reports, filename):
                         + "</td></tr>"
                     )
                 file.write("</table>")
+                file.write(
+                    "<a href='file://"
+                    + os.path.realpath(result["Errors Freq File"])
+                    + "'><button>Tabelle als Datei</button></a>"
+                )
                 file.write(
                     "<a href='file://"
                     + os.path.realpath(result["Errors File"])
