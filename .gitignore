@@ -4,3 +4,4 @@
 gui/
 gui_test.py
 *.pyc
+*.ipynb
