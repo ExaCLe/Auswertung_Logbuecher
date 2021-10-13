@@ -11,6 +11,17 @@ from analyse_log_files import (
 )
 
 
+def main():
+    root = tk.Tk()
+    root.geometry("1920x1080")
+    app = Application(master=root)
+    app.mainloop()
+
+
+if __name__ == "__main__":
+    main()
+
+
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
@@ -23,43 +34,42 @@ class Application(tk.Frame):
     def create_widgets(self):
         frame1 = tk.Frame(self)
         frame1.pack(fill=tk.X, side="top")
-        label_instruction1 = tk.Label(
+
+        # File Choosing
+        tk.Label(
             frame1, text="1. Wähle eine Datei zur Analyse:", font=("Arial", 20)
-        )
-        label_instruction1.pack(padx=20, pady=20, side=LEFT, fill=tk.X)
+        ).pack(padx=20, pady=20, side=LEFT, fill=tk.X)
         under_frame1 = tk.Frame(frame1)
         under_frame1.pack(side="left")
-
-        # Let the user choose a file
         self.createButton(under_frame1, "Choose a file", self.ask_for_file)
 
-        # Show the Filename to the user and show possible time frames
+        # Filename
         self.file = tk.Label(under_frame1, text="")
         self.file.pack(padx=20, pady=20, side=LEFT)
 
+        # Instruction Zeitpunkt
         frame2 = tk.Frame(self)
         frame2.pack(fill=tk.X, side="top")
-        label_instruction2 = tk.Label(
+        tk.Label(
             frame2,
             text="2. Wähle einen Zeitpunkt zur Analyse aus: ",
             font=("Arial", 20),
-        )
-        label_instruction2.pack(side="left", padx=20)
+        ).pack(side="left", padx=20)
 
-        # Request the input of the user
+        # Input for Zeitpunkt-Analyse
         self.time_input = tk.Entry(frame2)
         self.time_input.pack(padx=20, side="left")
 
-        # Button to start the analysis
+        # Button-Zeitpunktanalyse
         self.createButton(frame2, "Zeitpunkt analysieren", self.analyseArea)
 
-        # Show the range of input times
+        # Labels for the possible range of time inputs
         self.time_label = tk.Label(frame2)
         self.time_label.pack(padx=20, side="left")
 
+        # The results of the Zeitpunkt-Analyse
         frame3 = tk.Frame(self)
         frame3.pack(side="top", fill=tk.X, padx=100, expand=True)
-        # Set the label that will show the results
         label_ergebnisse = tk.Label(frame3, text="Ergebnisse: ", font=("Arial", 18))
         label_ergebnisse.pack(side="left")
         self.label_gang = tk.Label(frame3, text="Gang: ", font=("Arial", 15))
@@ -120,14 +130,3 @@ class Application(tk.Frame):
         button["command"] = onClick
         button.pack(padx=20, pady=20, side=LEFT)
         return button
-
-
-def main():
-    root = tk.Tk()
-    root.geometry("1920x1080")
-    app = Application(master=root)
-    app.mainloop()
-
-
-if __name__ == "__main__":
-    main()
