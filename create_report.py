@@ -110,7 +110,7 @@ def createHTMLReportFile(reports, filename):
             accidential_switches = result["Accidential Switches"]
             if len(accidential_switches) != 0:
                 file.write(
-                    "<h3>Versehentliche Kamerawechsel:</h3><table><tr><th>Von Kamera</th><th>Zu Kamera</th><th>Wechsel bei</th><th>War aktiv für [s]</th><tr>"
+                    "<h3>Versehentliche Kamerawechsel:</h3><table><tr><th>Von Kamera</th><th>Zu Kamera</th><th>Wechsel bei</th><th>War aktiv für [s]</th><th>Geschwindigkeit</th><tr>"
                 )
                 for ele in accidential_switches:
                     file.write(
@@ -122,6 +122,8 @@ def createHTMLReportFile(reports, filename):
                         + str(ele["At"])
                         + "</td><td>"
                         + str(ele["Duration"])
+                        + "</td><td>"
+                        + str(ele["Speed"])
                         + "</td></tr>"
                     )
             file.write("</table>")

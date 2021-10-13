@@ -103,7 +103,7 @@ def analyseDrive(df, time, foldername, index=1):
     - View Speed Graph (The relative path to the view-speed-graph)
     - Time In Camera (a list with the times in each camera (reference by index))
     - Camera Switches (a 2d-list with the switch from 1-2 being at [0][1])
-    - Accidential Switches (a list of accidential switches (each is a dict with "From", "To", "Duration", "At"))
+    - Accidential Switches (a list of accidential switches (each is a dict with "From", "To", "Duration", "At", "Speed"))
     - Error Freq (a list with the errors and the number of occurences (tuple with [0] = error and [1] = freq))
     - Errors File (the path to the error file )
     - Drive Log (the path to the log of the file with the drive df)
@@ -272,6 +272,7 @@ def detect_time_spend_in_cam(df):
                         "To": cam + 1,
                         "At": timestamp,
                         "Duration": time_passed,
+                        "Speed": df.iloc[i]["Geschwindigkeit [km/h]"],
                     }
                 )
             start = timestamp
