@@ -63,6 +63,11 @@ def createHTMLReportFile(reports, filename):
                         + "</td></tr>"
                     )
                 file.write("</table>")
+                file.write(
+                    "<a href='file://"
+                    + os.path.realpath(result["Unusual Things File"])
+                    + "'><button>Tabelle als Datei</button></a>"
+                )
 
             # The time in the cameras
             times = result["Time In Camera"]
@@ -105,6 +110,12 @@ def createHTMLReportFile(reports, filename):
                 + "</td><td>"
                 + str(switches[2][1])
                 + "</td></tr></table>"
+            )
+
+            file.write(
+                "<a href='file://"
+                + os.path.realpath(result["Camera Switches File"])
+                + "'><button>Tabelle als Datei</button></a>"
             )
 
             accidential_switches = result["Accidential Switches"]

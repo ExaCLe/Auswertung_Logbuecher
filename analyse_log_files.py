@@ -99,6 +99,7 @@ def analyseDrive(df, time, foldername, index=1):
     - Average Speed
     - Unusual Things Backwards (driving backwards and looking forwards)
     - Unusual Things Forwards (driving forward and looking backwards)
+    - Unusual Things File (the relative path to the file of the unusual things)
     - Folder (the name of the folder of all the files)
     - View Speed Graph (The relative path to the view-speed-graph)
     - Time In Camera (a list with the times in each camera (reference by index))
@@ -124,13 +125,19 @@ def analyseDrive(df, time, foldername, index=1):
     average_speed = get_average_speed(filtered_df)
 
     # Find the times where the view was not equal to the gear and the car was moving
-    unusual_things_backwards, unusual_things_forwards = find_unusual_things(filtered_df)
+    (
+        unusual_things_backwards,
+        unusual_things_forwards,
+        unusual_things_file,
+    ) = find_unusual_things(filtered_df, folder)
 
     # Draw a figure with the view as the background and the speed as a curve
     filename_view_speed_graph = draw_view_speed_graph(filtered_df, folder)
 
     # Figure out the time spend in each Camera
-    cameras, switches, accidential_switches = detect_time_spend_in_cam(filtered_df)
+    cameras, switches, accidential_switches, file_switches = detect_time_spend_in_cam(
+        filtered_df, folder
+    )
 
     # Get all the error messages by frequency
     errors = filter_errors_by_freq(filtered_df, folder)
@@ -147,10 +154,12 @@ def analyseDrive(df, time, foldername, index=1):
         "Average Speed": average_speed,
         "Unusual Things Backwards": unusual_things_backwards,
         "Unusual Things Forwards": unusual_things_forwards,
+        "Unusual Things File": unusual_things_file,
         "Folder": folder,
         "View Speed Graph": os.path.join(subfolder, filename_view_speed_graph),
         "Time In Camera": cameras,
         "Camera Switches": switches,
+        "Camera Switches File": file_switches,
         "Accidential Switches": accidential_switches,
         "Errors Freq": errors,
         "Errors File": os.path.join(folder, "Fehleruebersicht" + ".csv"),
@@ -196,7 +205,7 @@ def get_average_speed(filtered_df):
     return driven_kilometers / hours
 
 
-def find_unusual_things(df):
+def find_unusual_things(df, folder):
     """
     Detects when the car was moving forward but looking backwards or vice versa
     Returns two dataframes: unusual_things_backwards, unusual_things_forwards
@@ -211,7 +220,11 @@ def find_unusual_things(df):
         & (df["Ganglage (Ist)"].str.contains("R"))
         & (df["Geschwindigkeit [km/h]"] != 0)
     ]
-    return unusual_things_backwards, unusual_things_forwards
+    temp = pd.concat([unusual_things_backwards, unusual_things_forwards], axis=1)
+    filename = os.path.join(folder, "Ungewoehnliche Dinge.csv")
+    if len(temp) > 0:
+        temp.to_csv(filename, sep=";")
+    return unusual_things_backwards, unusual_things_forwards, filename
 
 
 def draw_view_speed_graph(df, folder):
@@ -252,7 +265,7 @@ def draw_view_speed_graph(df, folder):
     return filename_view_speed_graph
 
 
-def detect_time_spend_in_cam(df):
+def detect_time_spend_in_cam(df, folder):
     cameras = [0, 0, 0]
     switches = [[0, 0, 0], [0, 0, 0], [0, 0, 0]]
     accidential_switches = []
@@ -281,7 +294,21 @@ def detect_time_spend_in_cam(df):
             camera = cam
     time_passed = (df.iloc[len(df) - 1]["Zeitstempel"] - start).seconds
     cameras[camera] += time_passed
-    return cameras, switches, accidential_switches
+    switches_df = pd.DataFrame(
+        {
+            "Gesamt": np.array(switches).sum(),
+            "Von 1 zu 2": switches[0][1],
+            "Von 1 zu 3": switches[0][2],
+            "Von 2 zu 3": switches[1][2],
+            "Von 2 zu 1": switches[1][0],
+            "Von 3 zu 1": switches[2][0],
+            "Von 3 zu 2": switches[2][1],
+        },
+        index=[0],
+    )
+    file_switches = os.path.join(folder, "Kamerawechsel.csv")
+    switches_df.to_csv(file_switches, sep=";")
+    return cameras, switches, accidential_switches, file_switches
 
 
 def filter_errors_by_freq(df, folder):
