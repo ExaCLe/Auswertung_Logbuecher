@@ -71,6 +71,9 @@ def createHTMLReportFile(reports, filename):
 
             # The time in the cameras
             times = result["Time In Camera"]
+            file.write(
+                "<img src='" + result["File Pie Chart"] + "' style='width:20%;''/>"
+            )
             total_time = times[0] + times[1] + times[2]
             file.write("<p>Verbrachte Zeit in Kameras:</p>")
             file.write(

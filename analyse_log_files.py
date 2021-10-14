@@ -142,6 +142,7 @@ def analyseDrive(df, time, foldername, index=1):
         file_switches,
         file_accidential_switches,
         file_time_in_camera,
+        filename_pie_chart,
     ) = detect_time_spend_in_cam(filtered_df, folder)
 
     # Get all the error messages by frequency
@@ -164,6 +165,7 @@ def analyseDrive(df, time, foldername, index=1):
         "View Speed Graph": os.path.join(subfolder, filename_view_speed_graph),
         "Time In Camera": cameras,
         "File Time In Camera": file_time_in_camera,
+        "File Pie Chart": os.path.join(subfolder, filename_pie_chart),
         "Camera Switches": switches,
         "Camera Switches File": file_switches,
         "Accidential Switches": accidential_switches,
@@ -302,6 +304,8 @@ def detect_time_spend_in_cam(df, folder):
             camera = cam
     time_passed = (df.iloc[len(df) - 1]["Zeitstempel"] - start).seconds
     cameras[camera] += time_passed
+
+    # Make a .csv file for the switches table
     switches_df = pd.DataFrame(
         {
             "Gesamt": np.array(switches).sum(),
@@ -316,9 +320,13 @@ def detect_time_spend_in_cam(df, folder):
     )
     file_switches = os.path.join(folder, "Kamerawechsel.csv")
     switches_df.to_csv(file_switches, sep=";")
+
+    # Make a .csv file for the accidential switches
     accidential_switches_df = pd.DataFrame(accidential_switches)
     file_accidential_switches = os.path.join(folder, "Versehentliche Kamerawechsel.csv")
     accidential_switches_df.to_csv(file_accidential_switches, sep=";")
+
+    # Make a .csv file for the time in camera
     camera_df = pd.DataFrame(
         {
             "Gesamt": to_time_format(np.array(cameras).sum()),
@@ -330,6 +338,40 @@ def detect_time_spend_in_cam(df, folder):
     )
     file_time_in_camera = os.path.join(folder, "Verbrachte Zeiten in den Kameras.csv")
     camera_df.to_csv(file_time_in_camera, sep=";")
+
+    # Make a pie-chart for the time facing front and back
+    fig, ax1 = plt.subplots()
+    cmap = plt.cm.get_cmap("jet", 3)  # define the colormap
+    # extract all colors from the .jet map
+    cmaplist = [cmap(i) for i in range(cmap.N)]
+    patches, texts, autotexts = ax1.pie(
+        cameras,
+        explode=(0, 0, 0),
+        labels=["Kamera 1", "Kamera 2", "Kamera 3"],
+        autopct="%1.1f%%",
+        startangle=90,
+        colors=cmaplist,
+        textprops={"fontsize": 14},
+        normalize=True,
+    )
+    for i in range(3):
+        autotext = autotexts[i]
+        text = texts[i]
+        autotext.set_color("black")
+        if autotext.get_text() == "0.0%":
+            autotext.set_visible(False)
+            text.set_visible(False)
+    for patch in patches:
+        patch.set_alpha(0.4)
+    filename_pie_chart = "Tortendiagramm Sichtverteilung.jpg"
+    plt.savefig(
+        os.path.join(folder, filename_pie_chart),
+        format="jpg",
+        dpi=100,
+        bbox_inches="tight",
+    )
+    plt.close("all")
+
     return (
         cameras,
         switches,
@@ -337,6 +379,7 @@ def detect_time_spend_in_cam(df, folder):
         file_switches,
         file_accidential_switches,
         file_time_in_camera,
+        filename_pie_chart,
     )
 
 
